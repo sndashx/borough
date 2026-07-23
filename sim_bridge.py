@@ -117,38 +117,30 @@ def main():
         elif args.action == "tick_years":
             sim.run_years(args.years)
         elif args.action == "player_act":
-            if args.player_cmd == "rest":
-                if world.player_id and world.player_id in world.npcs:
-                    p = world.npcs[world.player_id]
+            if world.player_id and world.player_id in world.npcs:
+                p = world.npcs[world.player_id]
+                from core import actions
+                if args.player_cmd == "work":
+                    res = actions.work_job(world, p)
+                elif args.player_cmd == "buy":
+                    res = actions.buy_provisions(world, p)
+                elif args.player_cmd == "pray":
+                    res = actions.pray_at_church(world, p)
+                elif args.player_cmd == "marry" and args.target_id:
+                    res = actions.propose_marriage(world, p, args.target_id)
+                elif args.player_cmd == "run_council":
+                    res = actions.run_for_council_seat(world, p, "Mayor")
+                elif args.player_cmd == "policy":
+                    res = actions.toggle_council_policy(world, p, "curfew", True)
+                elif args.player_cmd == "forge_relic":
+                    res = actions.forge_masterwork_relic(world, p, "Excalibur")
+                elif args.player_cmd == "join_cult":
+                    res = actions.join_secret_cult(world, p)
+                elif args.player_cmd == "duel" and args.target_id:
+                    res = actions.challenge_duel(world, p, args.target_id)
+                elif args.player_cmd == "rest":
                     p.body.fatigue = max(0, p.body.fatigue - 50)
                     p.body.health = min(100, p.body.health + 20)
-                sim.run_days(1)
-            elif args.player_cmd == "work":
-                if world.player_id and world.player_id in world.npcs:
-                    p = world.npcs[world.player_id]
-                    p.status.coins += 5
-                    p.body.fatigue = min(100, p.body.fatigue + 25)
-                sim.run_days(1)
-            elif args.player_cmd == "fight" and args.target_id in world.npcs:
-                target = world.npcs[args.target_id]
-                target.body.health = max(0, target.body.health - 35)
-                world.chronicle.append({
-                    "year": world.year,
-                    "type": "crime",
-                    "summary": f"A brawl broke out! {target.first_name} {target.family_name} was struck in anger."
-                })
-                sim.run_days(1)
-            elif args.player_cmd == "steal" and args.target_id in world.npcs:
-                target = world.npcs[args.target_id]
-                stolen = min(10, target.status.coins)
-                target.status.coins -= stolen
-                if world.player_id and world.player_id in world.npcs:
-                    world.npcs[world.player_id].status.coins += stolen
-                world.chronicle.append({
-                    "year": world.year,
-                    "type": "crime",
-                    "summary": f"{stolen} coppers were stolen from {target.first_name} {target.family_name}!"
-                })
                 sim.run_days(1)
 
     data = world.to_dict()

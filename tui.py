@@ -618,35 +618,36 @@ class BoroughTUI:
             return False
         elif ord('1') <= ch <= ord('8') and self.active_tab == "actions":
             opt = ch - ord('0')
+            from core import actions
             if opt == 1:
-                self.player.status.coins += 15
-                self.player.ambition.progress = min(100, self.player.ambition.progress + 5)
-                self.log("WORK", f"Worked shift as {self.player.status.occupation}. Earned +15 Gold, +5% Goal.", 2)
-                self.step_day()
+                res = actions.work_job(self.world, self.player)
+                self.log("WORK", res["message"], 2 if res["success"] else 1)
+                if res["success"]:
+                    self.step_day()
             elif opt == 2:
-                if self.player.status.coins >= 5:
-                    self.player.status.coins -= 5
-                    self.player.body.health = min(100, self.player.body.health + 20)
-                    self.player.body.hunger = min(100, self.player.body.hunger + 30)
-                    self.log("TRADE", "Purchased fresh bread & cider at market (+20 HP, +30 Hunger).", 2)
-                else:
-                    self.log("TRADE", "Not enough gold! Market food costs 5 Gold.", 1)
+                res = actions.buy_provisions(self.world, self.player)
+                self.log("TRADE", res["message"], 2 if res["success"] else 1)
             elif opt == 3:
-                self.player.psychology.paranoia = max(0, self.player.psychology.paranoia - 20)
-                self.player.psychology.belonging_need = min(100, self.player.psychology.belonging_need + 15)
-                self.log("PRAY", "Prayed at Church. Paranoia eased (-20%), divine peace gained.", 5)
+                res = actions.pray_at_church(self.world, self.player)
+                self.log("PRAY", res["message"], 5 if res["success"] else 1)
             elif opt == 4:
                 self.player.psychology.joy = min(100, self.player.psychology.joy + 25)
                 self.log("TAVERN", "Shared ale & rumors at the tavern. Joy increased (+25%).", 3)
             elif opt == 5:
-                self.player.ambition.progress = min(100, self.player.ambition.progress + 15)
-                self.log("GOAL", f"Practiced skills for goal '{self.player.ambition.title}' (+15%).", 3)
+                res = actions.forge_masterwork_relic(self.world, self.player, f"{self.player.family_name}'s Heirloom")
+                self.log("FORGE", res["message"], 3 if res["success"] else 1)
             elif opt == 6:
-                self.log("COURT", "Courted local citizens. Relationship affinity increased.", 2)
+                if self.selected_npc_id and self.selected_npc_id != self.player.id:
+                    res = actions.propose_marriage(self.world, self.player, self.selected_npc_id)
+                    self.log("MARRY", res["message"], 2 if res["success"] else 1)
+                else:
+                    self.log("MARRY", "Select a citizen in the directory or map first to propose!", 1)
             elif opt == 7:
-                self.log("COUNCIL", "Petitioned the Town Council for grain subsidies & lower taxes.", 6)
+                res = actions.run_for_council_seat(self.world, self.player, "Mayor")
+                self.log("COUNCIL", res["message"], 6 if res["success"] else 1)
             elif opt == 8:
-                self.log("CULT", "Investigated dark alleys for secret cult symbols & runes.", 5)
+                res = actions.join_secret_cult(self.world, self.player)
+                self.log("CULT", res["message"], 5 if res["success"] else 1)
             self.active_tab = "map"
         elif ord('1') <= ch <= ord('9') and self.current_scene:
             choice_idx = ch - ord('1')
