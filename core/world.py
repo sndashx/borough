@@ -301,7 +301,46 @@ def _make_tile(terrain: str) -> dict:
     }
 
 
+def _assign_npc_ambition_and_quirks(npc: NPC, rng: random.Random) -> None:
+    AMBITIONS = [
+        "Win Election to Town Council",
+        "Forge a Legendary Masterwork Relic",
+        "Amass 200 Coppers Wealth",
+        "Erect a Sacred Temple Shrine",
+        "Raise 3 Heir Children",
+        "Uncover Underground Secret Societies",
+        "Master Craftsmanship Trade",
+    ]
+    QUIRKS = [
+        "Night Owl", "Miserly", "Gourmand", "Gossiper", "Zealot",
+        "Melancholic", "Poet", "Brawler", "Superstitious", "Charitable"
+    ]
+    npc.ambition.title = rng.choice(AMBITIONS)
+    npc.ambition.progress = rng.randint(5, 30)
+    npc.ambition.quirks = rng.sample(QUIRKS, k=rng.randint(1, 3))
+    npc.ambition.mood_summary = f"Content with life in House {npc.family_name}"
+
+
 def _carve_tiles(w: World, rng: random.Random) -> None:
+    w.tiles = [[_make_tile("grass") for _ in range(w.map_width)] for _ in range(w.map_height)]
+    # Central village square
+    cx, cy = w.map_width // 2, w.map_height // 2
+    for dy in range(-3, 4):
+        for dx in range(-3, 4):
+            x, y = cx + dx, cy + dy
+            if 0 <= x < w.map_width and 0 <= y < w.map_height:
+                w.tiles[y][x]["terrain"] = "cobble"
+    # A main road north-south
+    for y in range(4, w.map_height):
+        w.tiles[y][cx]["terrain"] = "dirt"
+        w.tiles[y][cx - 1]["terrain"] = "dirt"
+    # Farmland around the village
+    for dy in range(-10, 11):
+        for dx in range(-10, 11):
+            x, y = cx + dx, cy + dy
+            if 0 <= x < w.map_width and 0 <= y < w.map_height:
+                if abs(dx) > 4 and abs(dy) > 4 and w.tiles[y][x]["terrain"] == "grass":
+                    w.tiles[y][x]["terrain"] = "farmland"
     """Carve a 64x64 map. Grass with a central village, water to the north, paths."""
     w.tiles = [[_make_tile("grass") for _ in range(w.map_width)] for _ in range(w.map_height)]
     # River along the top
@@ -441,6 +480,7 @@ def generate_world(seed=None, name: str = "Hollowfield", year: int = 0, pop: int
             if n.id not in house.occupant_npc_ids:
                 house.occupant_npc_ids.append(n.id)
         n.status.coins = rng.randint(0, 20)
+        _assign_npc_ambition_and_quirks(n, rng)
         w.add_npc(n)
         adults.append(n)
 
@@ -468,6 +508,7 @@ def generate_world(seed=None, name: str = "Hollowfield", year: int = 0, pop: int
             if n.id not in house.occupant_npc_ids:
                 house.occupant_npc_ids.append(n.id)
         n.status.coins = rng.randint(5, 30)
+        _assign_npc_ambition_and_quirks(n, rng)
         w.add_npc(n)
         adults.append(n)
 
@@ -494,6 +535,7 @@ def generate_world(seed=None, name: str = "Hollowfield", year: int = 0, pop: int
             n.status.household_id = house.id
             if n.id not in house.occupant_npc_ids:
                 house.occupant_npc_ids.append(n.id)
+        _assign_npc_ambition_and_quirks(n, rng)
         w.add_npc(n)
         children.append(n)
 

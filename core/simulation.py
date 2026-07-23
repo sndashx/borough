@@ -88,7 +88,7 @@ class Simulation:
             count = 0
             for iid in b.item_ids:
                 it = w.items.get(iid)
-                if it and it.type in (ItemType.GRAIN, ItemType.BREAD, ItemType.MEAT, ItemType.HERB):
+                if it and it.type in (ItemType.GRAIN, ItemType.FLOUR, ItemType.BREAD, ItemType.MEAT, ItemType.HERB, ItemType.CHEESE, ItemType.BEER, ItemType.WINE, ItemType.CIDER):
                     count += 1
             b.food_count_cache = count
 
@@ -238,7 +238,7 @@ class Simulation:
 
     def _npc_eat(self, npc: NPC) -> bool:
         """Find food in inventory or household. Return True if ate."""
-        FOOD_TYPES = (ItemType.GRAIN, ItemType.BREAD, ItemType.MEAT, ItemType.HERB)
+        FOOD_TYPES = (ItemType.GRAIN, ItemType.FLOUR, ItemType.BREAD, ItemType.MEAT, ItemType.HERB, ItemType.CHEESE, ItemType.BEER, ItemType.WINE, ItemType.CIDER)
         # First try inventory
         for iid in list(npc.status.inventory_item_ids):
             item = self.world.items.get(iid)
@@ -344,7 +344,7 @@ class Simulation:
                 house.food_count_cache = sum(
                     1 for iid in house.item_ids
                     if (it := self.world.items.get(iid))
-                    and it.type in (ItemType.GRAIN, ItemType.BREAD, ItemType.MEAT, ItemType.HERB)
+                    and it.type in (ItemType.GRAIN, ItemType.FLOUR, ItemType.BREAD, ItemType.MEAT, ItemType.HERB, ItemType.CHEESE, ItemType.BEER, ItemType.WINE, ItemType.CIDER)
                 )
         # Cap each house's total items to prevent runaway accumulation
         if npc.status.household_id:
@@ -354,7 +354,7 @@ class Simulation:
                 non_food = []
                 for iid in house.item_ids:
                     it = self.world.items.get(iid)
-                    if it and it.type not in (ItemType.GRAIN, ItemType.BREAD, ItemType.MEAT, ItemType.HERB):
+                    if it and it.type not in (ItemType.GRAIN, ItemType.FLOUR, ItemType.BREAD, ItemType.MEAT, ItemType.HERB, ItemType.CHEESE, ItemType.BEER, ItemType.WINE, ItemType.CIDER):
                         non_food.append(iid)
                 for iid in non_food[:len(house.item_ids) - 60]:
                     house.item_ids.remove(iid)
@@ -608,6 +608,8 @@ class Simulation:
         child.mind = TraitSet.random(self.rng, base=mother.mind if self.rng.random() < 0.5 else
                                      (father.mind if father else mother.mind))
         child.body.constitution = (mother.body.constitution + (father.body.constitution if father else 50)) // 2
+        from .world import _assign_npc_ambition_and_quirks
+        _assign_npc_ambition_and_quirks(child, self.rng)
         w.add_npc(child)
         # Sprint 7: register parent links + ancestor map
         if w.family is not None:

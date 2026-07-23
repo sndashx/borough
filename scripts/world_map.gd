@@ -97,7 +97,7 @@ func _draw() -> void:
 		var pos_arr = positions.get(nid, [32, 32])
 		var pos = Vector2(float(pos_arr[0]), float(pos_arr[1]))
 			
-		var world_pos = pos * 16.0 + Vector2(8, -4)
+		var world_pos = pos * 32.0 + Vector2(16, -6)
 		draw_string(ThemeDB.fallback_font, world_pos, act, HORIZONTAL_ALIGNMENT_CENTER, -1, 10, Color.YELLOW)
 
 func _update_selection() -> void:

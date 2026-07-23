@@ -30,17 +30,17 @@ class Weather(str, Enum):
     DROUGHT = "drought"
 
 
-# Day-of-year thresholds (Northern hemisphere inspired)
-SEASON_CUTS = (60, 152, 244, 335)  # spring, summer, autumn, winter starts
+# Day-of-year thresholds (360 days / year = 90 days per season)
+SEASON_CUTS = (90, 180, 270, 360)
 
 
 def season_for_day(day_of_year: int) -> Season:
-    d = day_of_year % 365
-    if d < SEASON_CUTS[0] or d >= SEASON_CUTS[3]:
+    d = day_of_year % 360
+    if d < 90:
         return Season.WINTER
-    if d < SEASON_CUTS[1]:
+    if d < 180:
         return Season.SPRING
-    if d < SEASON_CUTS[2]:
+    if d < 270:
         return Season.SUMMER
     return Season.AUTUMN
 

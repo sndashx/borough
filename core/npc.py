@@ -177,6 +177,14 @@ class Status:
 
 
 @dataclass
+class Ambition:
+    title: str = "Live a Peaceful Life"
+    progress: int = 10                     # 0..100%
+    quirks: list[str] = field(default_factory=list)
+    mood_summary: str = "Content with life in Borough"
+
+
+@dataclass
 class NPC:
     id: str = field(default_factory=_next_npc_id)
     first_name: str = ""
@@ -193,6 +201,7 @@ class NPC:
     anatomy: Anatomy = field(default_factory=Anatomy)
     mind: TraitSet = field(default_factory=TraitSet)
     psychology: Psychology = field(default_factory=Psychology)
+    ambition: Ambition = field(default_factory=Ambition)
     memory: list[Memory] = field(default_factory=list)
     knowledge: Knowledge = field(default_factory=Knowledge)
     relationships: dict[str, Relationship] = field(default_factory=dict)  # npc_id -> Relationship
@@ -233,6 +242,7 @@ class NPC:
             "anatomy": self.anatomy.to_dict(),
             "mind": self.mind.__dict__,
             "psychology": self.psychology.__dict__,
+            "ambition": self.ambition.__dict__,
             "memory": [m.__dict__ for m in self.memory],
             "knowledge": {"skills": self.knowledge.skills, "facts_known": self.knowledge.facts_known},
             "relationships": {k: v.__dict__ for k, v in self.relationships.items()},
@@ -272,6 +282,10 @@ class NPC:
         psy_kwargs = {k: v for k, v in psy.items()
                       if k in Psychology.__dataclass_fields__}
         n.psychology = Psychology(**psy_kwargs)
+        amb = d.get("ambition", {})
+        amb_kwargs = {k: v for k, v in amb.items()
+                      if k in Ambition.__dataclass_fields__}
+        n.ambition = Ambition(**amb_kwargs)
         n.memory = [Memory(**md) for md in d.get("memory", [])]
         k = d.get("knowledge", {})
         n.knowledge = Knowledge(skills=k.get("skills", {}), facts_known=k.get("facts_known", []))

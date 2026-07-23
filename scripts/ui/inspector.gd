@@ -74,6 +74,26 @@ func _show_npc_details(npc_id: String) -> void:
 	txt += "[b]Physical Condition:[/b]\n"
 	txt += "• Health: %d/100\n• Hunger: %d/100\n• Fatigue: %d/100\n" % [health, hunger, fatigue]
 	
+	# Life Ambition, Goal Progress, Quirks & Mood
+	var amb = npc.get("ambition", {})
+	if not amb.is_empty():
+		var atitle = str(amb.get("title", "Live a Peaceful Life"))
+		var aprog = int(amb.get("progress", 10))
+		var quirks = amb.get("quirks", [])
+		var mood = str(amb.get("mood_summary", "Content with life in Borough"))
+		
+		txt += "\n[b][color=gold]Life Ambition:[/color][/b] " + atitle + "\n"
+		txt += "• Progress: %d%% [" % aprog
+		for i in range(10):
+			if i * 10 < aprog:
+				txt += "█"
+			else:
+				txt += "░"
+		txt += "]\n"
+		if not quirks.is_empty():
+			txt += "• [color=cyan]Quirks:[/color] " + ", ".join(quirks) + "\n"
+		txt += "• [color=lightgreen]Mood:[/color] " + mood + "\n\n"
+	
 	# Anatomy, Scars & Impairments
 	var anatomy = npc.get("anatomy", {})
 	if not anatomy.is_empty():
