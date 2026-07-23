@@ -8,7 +8,7 @@ signal selection_changed
 signal chronicle_updated
 
 var world_data: Dictionary = {}
-var is_paused: bool = true
+var is_paused: bool = false
 var sim_speed: float = 1.0 # Ticks per second when unpaused
 var is_simulating: bool = false
 

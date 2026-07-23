@@ -70,15 +70,12 @@ func _update_map() -> void:
 
 	# 3. Populate Actors Layer (Living NPCs)
 	var living_npcs = GameState.get_living_npcs()
+	var positions = world.get("npc_positions", {})
+	
 	for npc in living_npcs:
-		var status = npc.get("status", {})
-		var house_id = str(status.get("household_id", ""))
-		var pos = Vector2i(32, 32)
-		
-		if buildings.has(house_id):
-			var house = buildings[house_id]
-			pos = Vector2i(int(house.get("x", 32)), int(house.get("y", 32)))
-			
+		var nid = str(npc.get("id", ""))
+		var pos_arr = positions.get(nid, [32, 32])
+		var pos = Vector2i(int(pos_arr[0]), int(pos_arr[1]))
 		actors_layer.set_cell(pos, 0, Vector2i(0, 2))
 		
 	_update_selection()
@@ -91,19 +88,14 @@ func _draw() -> void:
 		return
 		
 	var activities = world.get("npc_activities", {})
-	var buildings = GameState.get_buildings()
+	var positions = world.get("npc_positions", {})
 	var living_npcs = GameState.get_living_npcs()
 	
 	for npc in living_npcs:
 		var nid = str(npc.get("id", ""))
 		var act = str(activities.get(nid, "Socializing"))
-		var status = npc.get("status", {})
-		var house_id = str(status.get("household_id", ""))
-		var pos = Vector2(32, 32)
-		
-		if buildings.has(house_id):
-			var house = buildings[house_id]
-			pos = Vector2(int(house.get("x", 32)), int(house.get("y", 32)))
+		var pos_arr = positions.get(nid, [32, 32])
+		var pos = Vector2(float(pos_arr[0]), float(pos_arr[1]))
 			
 		var world_pos = pos * 16.0 + Vector2(8, -4)
 		draw_string(ThemeDB.fallback_font, world_pos, act, HORIZONTAL_ALIGNMENT_CENTER, -1, 10, Color.YELLOW)

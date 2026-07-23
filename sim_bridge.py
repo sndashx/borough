@@ -44,6 +44,48 @@ def get_npc_activity(npc, world) -> str:
     return "Socializing"
 
 
+def get_npc_position(npc, data) -> list[int]:
+    """Calculate dynamic grid coordinates for NPCs based on activity & occupation."""
+    status = npc.get("status", {})
+    occ = str(status.get("occupation", "citizen")).lower()
+    house_id = str(status.get("household_id", ""))
+    buildings = data.get("buildings", {})
+    day = int(data.get("day", 0))
+
+    hx, hy = 32, 32
+    if house_id in buildings:
+        hx = int(buildings[house_id].get("x", 32))
+        hy = int(buildings[house_id].get("y", 32))
+
+    work_pos = None
+    target_btype = None
+    if occ in ("smith", "blacksmith"):
+        target_btype = "smithy"
+    elif occ in ("baker", "miller"):
+        target_btype = "mill"
+    elif occ == "priest":
+        target_btype = "church"
+    elif occ in ("innkeeper", "tavern"):
+        target_btype = "tavern"
+    elif occ == "merchant":
+        target_btype = "market"
+
+    if target_btype:
+        for b in buildings.values():
+            if str(b.get("type", "")).lower() == target_btype:
+                work_pos = (int(b.get("x", hx)), int(b.get("y", hy)))
+                break
+
+    act = get_npc_activity(npc, data)
+    seed_offset = (abs(hash(str(npc.get("id", "")))) + day) % 3
+    dx, dy = (seed_offset % 2), (seed_offset // 2)
+
+    if act in ("Sleeping", "Eating", "Injured") or not work_pos:
+        return [hx + dx, hy + dy]
+    else:
+        return [work_pos[0] + dx, work_pos[1] + dy]
+
+
 def main():
     parser = argparse.ArgumentParser(description="Borough Simulation Bridge")
     parser.add_argument("--action", choices=["gen", "tick_days", "tick_years", "player_act", "dialogue"], required=True)
@@ -111,12 +153,15 @@ def main():
 
     data = world.to_dict()
 
-    # Calculate moment-to-moment NPC activities for thought bubbles
+    # Calculate moment-to-moment NPC activities and dynamic grid positions
     activities = {}
+    positions = {}
     for nid, npc in data.get("npcs", {}).items():
         if npc.get("is_alive", True):
             activities[nid] = get_npc_activity(npc, data)
+            positions[nid] = get_npc_position(npc, data)
     data["npc_activities"] = activities
+    data["npc_positions"] = positions
 
     # Deep PhD Subsystem summaries for Godot UI inspectors
     if world.governance:

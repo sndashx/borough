@@ -62,6 +62,21 @@ func _ready() -> void:
 	var chronicle = GameState.get_chronicle()
 	print("  ✓ Chronicle entries logged: ", chronicle.size())
 	assert(chronicle.size() > 0, "Chronicle should contain events")
-	
+
+	# 7. Test Main Menu & Settings Panel
+	print("\n[Beta Tester] 7. Testing Main Menu & Settings Panel controls...")
+	var main_menu_scene = load("res://scenes/main_menu.tscn").instantiate()
+	add_child(main_menu_scene)
+	var settings_btn: Button = main_menu_scene.get_node("%SettingsBtn")
+	var close_settings_btn: Button = main_menu_scene.get_node("%CloseSettingsBtn")
+	var settings_panel: Control = main_menu_scene.get_node("SettingsPanel")
+	assert(not settings_panel.visible, "Settings panel should be hidden initially")
+	settings_btn.pressed.emit()
+	assert(settings_panel.visible, "Settings panel should be visible after pressing Settings button")
+	close_settings_btn.pressed.emit()
+	assert(not settings_panel.visible, "Settings panel should be hidden after pressing Close Settings button")
+	print("  ✓ Settings Panel toggle verified successfully!")
+	main_menu_scene.queue_free()
+
 	print("\n=== ALL BETA TEST SUITES PASSED PERFECTLY WITH ZERO ERRORS ===")
 	get_tree().quit()

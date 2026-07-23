@@ -127,3 +127,9 @@ value = 80.0
 unique_name_in_owner = true
 layout_mode = 2
 text = "Fullscreen"
+
+[node name="CloseSettingsBtn" type="Button" parent="SettingsPanel/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 35)
+layout_mode = 2
+text = "Close Settings"

@@ -7,6 +7,8 @@ extends Control
 @onready var settings_btn: Button = %SettingsBtn
 @onready var quit_btn: Button = %QuitBtn
 
+@onready var settings_panel: Control = $SettingsPanel
+@onready var close_settings_btn: Button = %CloseSettingsBtn
 @onready var master_vol_slider: HSlider = %MasterVolSlider
 @onready var sfx_vol_slider: HSlider = %SFXVolSlider
 @onready var fullscreen_check: CheckBox = %FullscreenCheck
@@ -17,6 +19,10 @@ func _ready() -> void:
 		new_game_btn.grab_focus()
 	if load_game_btn:
 		load_game_btn.pressed.connect(_on_load_game_pressed)
+	if settings_btn and settings_panel:
+		settings_btn.pressed.connect(func(): settings_panel.visible = true)
+	if close_settings_btn and settings_panel:
+		close_settings_btn.pressed.connect(func(): settings_panel.visible = false)
 	if quit_btn:
 		quit_btn.pressed.connect(func(): get_tree().quit())
 		
