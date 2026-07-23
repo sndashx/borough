@@ -1,0 +1,212 @@
+[gd_scene load_steps=10 format=3 uid="uid://cboroughmainscene"]
+
+[ext_resource type="Script" path="res://scripts/world_map.gd" id="1_map"]
+[ext_resource type="Script" path="res://scripts/camera_controller.gd" id="2_cam"]
+[ext_resource type="Script" path="res://scripts/ui/hud.gd" id="3_hud"]
+[ext_resource type="Script" path="res://scripts/ui/inspector.gd" id="4_inspector"]
+[ext_resource type="Script" path="res://scripts/ui/chronicle_panel.gd" id="5_chronicle"]
+[ext_resource type="TileSet" uid="uid://cboroughtileset" path="res://assets/borough_tileset.tres" id="6_tileset"]
+[ext_resource type="Script" path="res://scripts/ui/context_menu.gd" id="7_menu"]
+[ext_resource type="Script" path="res://scripts/ui/dialogue_popup.gd" id="8_dialog"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_top"]
+bg_color = Color(0.12, 0.12, 0.15, 0.9)
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+
+[node name="Main" type="Node2D"]
+
+[node name="WorldMap" type="Node2D" parent="."]
+script = ExtResource("1_map")
+
+[node name="GroundLayer" type="TileMapLayer" parent="WorldMap"]
+tile_set = ExtResource("6_tileset")
+
+[node name="BuildingLayer" type="TileMapLayer" parent="WorldMap"]
+tile_set = ExtResource("6_tileset")
+
+[node name="ActorsLayer" type="TileMapLayer" parent="WorldMap"]
+tile_set = ExtResource("6_tileset")
+
+[node name="SelectionLayer" type="TileMapLayer" parent="WorldMap"]
+tile_set = ExtResource("6_tileset")
+
+[node name="MainCamera" type="Camera2D" parent="."]
+position = Vector2(512, 512)
+zoom = Vector2(1.5, 1.5)
+script = ExtResource("2_cam")
+
+[node name="ContextMenu" type="PopupMenu" parent="."]
+script = ExtResource("7_menu")
+
+[node name="DialoguePopup" type="AcceptDialog" parent="."]
+script = ExtResource("8_dialog")
+
+[node name="VBox" type="VBoxContainer" parent="DialoguePopup"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 442.0
+offset_bottom = 201.0
+
+[node name="DialogueText" type="RichTextLabel" parent="DialoguePopup/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+
+[node name="HUDCanvas" type="CanvasLayer" parent="."]
+
+[node name="HUD" type="Control" parent="HUDCanvas"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("3_hud")
+
+[node name="TopBar" type="PanelContainer" parent="HUDCanvas/HUD"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 50.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_top")
+
+[node name="HBox" type="HBoxContainer" parent="HUDCanvas/HUD/TopBar"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="TownLabel" type="Label" parent="HUDCanvas/HUD/TopBar/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Hollowfield"
+
+[node name="VSeparator1" type="VSeparator" parent="HUDCanvas/HUD/TopBar/HBox"]
+layout_mode = 2
+
+[node name="YearDayLabel" type="Label" parent="HUDCanvas/HUD/TopBar/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Year 0, Day 0"
+
+[node name="SeasonLabel" type="Label" parent="HUDCanvas/HUD/TopBar/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Season: Winter"
+
+[node name="PopLabel" type="Label" parent="HUDCanvas/HUD/TopBar/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Population: 30 souls"
+
+[node name="Spacer" type="Control" parent="HUDCanvas/HUD/TopBar/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PausePlayBtn" type="Button" parent="HUDCanvas/HUD/TopBar/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "▶ Play"
+
+[node name="StepDayBtn" type="Button" parent="HUDCanvas/HUD/TopBar/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "+1 Day"
+
+[node name="StepYearBtn" type="Button" parent="HUDCanvas/HUD/TopBar/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "+1 Year"
+
+[node name="SpeedOptBtn" type="OptionButton" parent="HUDCanvas/HUD/TopBar/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="NewWorldBtn" type="Button" parent="HUDCanvas/HUD/TopBar/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "New Town"
+
+[node name="Inspector" type="Control" parent="HUDCanvas"]
+layout_mode = 3
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -340.0
+offset_top = 54.0
+offset_bottom = -160.0
+grow_horizontal = 0
+grow_vertical = 2
+script = ExtResource("4_inspector")
+
+[node name="Panel" type="PanelContainer" parent="HUDCanvas/Inspector"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TabContainer" type="TabContainer" parent="HUDCanvas/Inspector/Panel"]
+layout_mode = 2
+current_tab = 0
+
+[node name="Details" type="VBoxContainer" parent="HUDCanvas/Inspector/Panel/TabContainer"]
+layout_mode = 2
+
+[node name="InspectorText" type="RichTextLabel" parent="HUDCanvas/Inspector/Panel/TabContainer/Details"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "Select an object on the map."
+
+[node name="Citizens" type="VBoxContainer" parent="HUDCanvas/Inspector/Panel/TabContainer"]
+visible = false
+layout_mode = 2
+
+[node name="NPCItemList" type="ItemList" parent="HUDCanvas/Inspector/Panel/TabContainer/Citizens"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Chronicle" type="Control" parent="HUDCanvas"]
+layout_mode = 3
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -150.0
+grow_horizontal = 2
+grow_vertical = 0
+script = ExtResource("5_chronicle")
+
+[node name="Panel" type="PanelContainer" parent="HUDCanvas/Chronicle"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="HUDCanvas/Chronicle/Panel"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="HUDCanvas/Chronicle/Panel/VBox"]
+layout_mode = 2
+text = " --- Town Chronicle ---"
+horizontal_alignment = 1
+
+[node name="ChronicleText" type="RichTextLabel" parent="HUDCanvas/Chronicle/Panel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "Town history log..."
